@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from math import *
 
-def graph(sig, scale = None, offset = None, hold = True, continuous = True, name = None, linecolor = 1, bgcolor = 0, lineweight = 1, headless = False):
+def graph(sig, scale = None, offset = None, hold = True, continuous = True, name = None, linecolor = 1, bgcolor = 0, lineweight = 1, headless = False, labels = True, grid = True):
     if name == None:
         name = "steven"
     if scale == None:
@@ -40,6 +40,23 @@ def graph(sig, scale = None, offset = None, hold = True, continuous = True, name
     if not continuous:
         arr = cv2.flip(arr, 0)
         arr = cv2.rotate(arr, cv2.ROTATE_90_CLOCKWISE)
+
+    if labels:
+        maxval = max(sig)
+        minval = min(sig)
+        step = (maxval - minval) / 10
+        pn = minval-1
+        for i in range(10):
+            label = round(step*i + minval,2)
+            print(label, pn)
+            if label != pn:
+
+                arr = cv2.putText(arr, str(label), (0,500-i*50-7), 0, 0.3, linecolor, 1, cv2.LINE_AA)
+                pn = label
+                if grid:
+                    arr = cv2.line(arr, (0,round(500-i*50)), (499,round(500-i*50)), linecolor / 4, 1)
+                else:
+                    arr = cv2.line(arr, (5,round(500-i*50)), (30,round(500-i*50)), linecolor / 4, 1)
     if headless:
         return arr
     else:
@@ -66,7 +83,7 @@ if __name__ == "__main__":
             data[i] = basefunc(i) * noisedat[i]
         return data
     dataToPlot = simulnoise()
-    graphdata = graph(dataToPlot, continuous=True, linecolor = 0.25, bgcolor = 0, lineweight = 1, headless = True)
+    graphdata = graph(dataToPlot, continuous=True, linecolor = 0.25, bgcolor = 0, lineweight = 1, headless = True, labels=False)
     graphdata += graph(dataToPlot, continuous=False, linecolor = 1, bgcolor = 0, lineweight = 1, headless = True)
     cv2.imshow("graph", graphdata)
     cv2.waitKey(0)
